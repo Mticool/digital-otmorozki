@@ -59,5 +59,5 @@ cat docs/INSTALL.md
 
 ## Поддержка
 
-- Telegram: [@Mticool](https://t.me/Mticool)
-- Канал: [@marat_pro_biz](https://t.me/marat_pro_biz)
+- Telegram: [@ваш_telegram](https://t.me/ваш_username)
+- Канал: [@ваш_канал](https://t.me/ваш_канал)
