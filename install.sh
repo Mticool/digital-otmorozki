@@ -19,8 +19,7 @@ echo -e "${BLUE}============================================${NC}"
 echo -e "${BLUE}  🤖 Цифровые Отморозки — Установка        ${NC}"
 echo -e "${BLUE}============================================${NC}"
 echo ""
-echo "AI-команда из 6 агентов в одном workspace."
-echo "Потребуется ~10 минут и ответы на несколько вопросов."
+echo "AI-команда из 6 агентов. Потребуется ~10 минут."
 echo ""
 
 # ---- Проверка зависимостей ----
@@ -30,7 +29,6 @@ if ! command -v node &> /dev/null; then
   echo -e "${RED}❌ Node.js не найден. Установи Node.js 18+: https://nodejs.org${NC}"
   exit 1
 fi
-
 NODE_VER=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
 if [ "$NODE_VER" -lt 18 ]; then
   echo -e "${RED}❌ Нужен Node.js 18+. Текущая версия: $(node -v)${NC}"
@@ -49,7 +47,6 @@ if ! command -v clawhub &> /dev/null; then
   npm install -g clawhub
 fi
 echo -e "${GREEN}✅ ClawHub готов${NC}"
-
 echo ""
 
 # ---- Сбор данных ----
@@ -71,38 +68,35 @@ read -p "✍️  Токен Алёны: " TOKEN_ALENA
 read -p "🎨 Токен Маши: " TOKEN_MASHA
 read -p "📊 Токен Максима: " TOKEN_MAXIM
 read -p "🎬 Токен Алекса: " TOKEN_ALEX
-
 echo ""
-echo -e "${YELLOW}[3/6] Создаём единый workspace команды...${NC}"
 
-WORKSPACE="$HOME/otmorozki"
+# ---- Создаём структуру ----
+echo -e "${YELLOW}[3/6] Создаём workspace команды...${NC}"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE="$HOME/otmorozki"
 
-# Один workspace для всей команды
-mkdir -p "$WORKSPACE"/{brand,learning,memory}
+# Общие папки (одни на всю команду)
+mkdir -p "$BASE/shared"/{brand,learning,memory}
 
-# Копируем SOUL.md каждого агента в workspace
-cp "$SCRIPT_DIR/agents/07-reshala-crm/SOUL.md"        "$WORKSPACE/SOUL-reshala.md"
-cp "$SCRIPT_DIR/agents/01-sinsei-strategist/SOUL.md"   "$WORKSPACE/SOUL-sinsei.md"
-cp "$SCRIPT_DIR/agents/02-alena-copywriter/SOUL.md"    "$WORKSPACE/SOUL-alena.md"
-cp "$SCRIPT_DIR/agents/04-masha-designer/SOUL.md"      "$WORKSPACE/SOUL-masha.md"
-cp "$SCRIPT_DIR/agents/05-maxim-analyst/SOUL.md"       "$WORKSPACE/SOUL-maxim.md"
-cp "$SCRIPT_DIR/agents/06-alex-videoproducer/SOUL.md"  "$WORKSPACE/SOUL-alex.md"
+# Копируем общий бренд
+cp -r "$SCRIPT_DIR/shared/brand/"* "$BASE/shared/brand/"
 
-# Копируем общие файлы
-cp "$SCRIPT_DIR/agents/01-sinsei-strategist/BOOTSTRAP.md" "$WORKSPACE/BOOTSTRAP.md"
-cp "$SCRIPT_DIR/agents/01-sinsei-strategist/HEARTBEAT.md" "$WORKSPACE/HEARTBEAT.md"
-cp "$SCRIPT_DIR/agents/01-sinsei-strategist/AGENTS.md"    "$WORKSPACE/AGENTS.md"
-cp -r "$SCRIPT_DIR/shared/brand/"*                        "$WORKSPACE/brand/"
+# Пустые файлы памяти
+touch "$BASE/shared/learning/corrections.md"
+touch "$BASE/shared/learning/patterns.md"
+touch "$BASE/shared/learning/anti-patterns.md"
+cat > "$BASE/shared/memory/active-context.md" << 'EOF'
+# Active Context
+_Обновлено: при первом запуске_
 
-# Подставляем TG ID владельца во все SOUL.md
-for f in "$WORKSPACE"/SOUL-*.md; do
-  sed -i "s/{OWNER_TG_ID}/$OWNER_TG_ID/g" "$f"
-  sed -i "s/YOUR_TELEGRAM_ID/$OWNER_TG_ID/g" "$f"
-done
+## Статус
+- Команда установлена
+- Заполни brand/ под свой бизнес (docs/CUSTOMIZE.md)
+EOF
 
-# Создаём USER.md
-cat > "$WORKSPACE/USER.md" << EOF
+# USER.md (общий для всех)
+cat > "$BASE/shared/USER.md" << EOF
 # USER.md
 - **Name:** $OWNER_NAME
 - **What to call them:** $OWNER_NAME
@@ -110,21 +104,44 @@ cat > "$WORKSPACE/USER.md" << EOF
 - **Timezone:** Europe/Moscow
 EOF
 
-# Создаём пустые файлы памяти
-touch "$WORKSPACE/learning/corrections.md"
-touch "$WORKSPACE/learning/patterns.md"
-touch "$WORKSPACE/learning/anti-patterns.md"
+echo "  ✅ Общие папки: $BASE/shared/"
 
-cat > "$WORKSPACE/memory/active-context.md" << 'EOF'
-# Active Context
-_Обновлено: при первом запуске_
+# Каждый агент — свой workspace + симлинки на общий brand/learning/memory
+declare -A AGENTS=(
+  [reshala]="07-reshala-crm"
+  [sinsei]="01-sinsei-strategist"
+  [alena]="02-alena-copywriter"
+  [masha]="04-masha-designer"
+  [maxim]="05-maxim-analyst"
+  [alex]="06-alex-videoproducer"
+)
 
-## Статус
-- Команда только что установлена
-- Заполни brand/ под свой бизнес (см. docs/CUSTOMIZE.md)
-EOF
+for AGENT_ID in reshala sinsei alena masha maxim alex; do
+  AGENT_DIR="${AGENTS[$AGENT_ID]}"
+  WS="$BASE/agents/$AGENT_ID"
+  mkdir -p "$WS"
 
-echo "  ✅ Workspace: $WORKSPACE"
+  # SOUL.md — уникальный для каждого агента
+  cp "$SCRIPT_DIR/agents/$AGENT_DIR/SOUL.md" "$WS/SOUL.md"
+  sed -i "s/{OWNER_TG_ID}/$OWNER_TG_ID/g" "$WS/SOUL.md"
+  sed -i "s/YOUR_TELEGRAM_ID/$OWNER_TG_ID/g" "$WS/SOUL.md"
+
+  # Общие файлы конфигурации
+  cp "$SCRIPT_DIR/agents/$AGENT_DIR/BOOTSTRAP.md" "$WS/BOOTSTRAP.md" 2>/dev/null || \
+    cp "$SCRIPT_DIR/agents/01-sinsei-strategist/BOOTSTRAP.md" "$WS/BOOTSTRAP.md"
+  cp "$SCRIPT_DIR/agents/$AGENT_DIR/HEARTBEAT.md" "$WS/HEARTBEAT.md" 2>/dev/null || \
+    cp "$SCRIPT_DIR/agents/01-sinsei-strategist/HEARTBEAT.md" "$WS/HEARTBEAT.md"
+  cp "$SCRIPT_DIR/agents/$AGENT_DIR/AGENTS.md"    "$WS/AGENTS.md" 2>/dev/null || \
+    cp "$SCRIPT_DIR/agents/01-sinsei-strategist/AGENTS.md" "$WS/AGENTS.md"
+
+  # Симлинки на общие папки (brand, learning, memory одни на всю команду)
+  ln -sf "$BASE/shared/brand"    "$WS/brand"
+  ln -sf "$BASE/shared/learning" "$WS/learning"
+  ln -sf "$BASE/shared/memory"   "$WS/memory"
+  ln -sf "$BASE/shared/USER.md"  "$WS/USER.md"
+
+  echo "  ✅ $AGENT_ID → $WS"
+done
 
 echo ""
 echo -e "${YELLOW}[4/6] Настраиваем openclaw.json...${NC}"
@@ -138,12 +155,12 @@ cat > ~/.openclaw/openclaw.json << EOF
       }
     },
     "list": [
-      { "id": "shtab",         "name": "Решала",  "workspace": "$WORKSPACE" },
-      { "id": "strategist",    "name": "Синсей",  "workspace": "$WORKSPACE" },
-      { "id": "copywriter",    "name": "Алёна",   "workspace": "$WORKSPACE" },
-      { "id": "designer",      "name": "Маша",    "workspace": "$WORKSPACE" },
-      { "id": "analyst",       "name": "Максим",  "workspace": "$WORKSPACE" },
-      { "id": "videoproducer", "name": "Алекс",   "workspace": "$WORKSPACE" }
+      { "id": "shtab",         "name": "Решала",  "workspace": "$BASE/agents/reshala" },
+      { "id": "strategist",    "name": "Синсей",  "workspace": "$BASE/agents/sinsei" },
+      { "id": "copywriter",    "name": "Алёна",   "workspace": "$BASE/agents/alena" },
+      { "id": "designer",      "name": "Маша",    "workspace": "$BASE/agents/masha" },
+      { "id": "analyst",       "name": "Максим",  "workspace": "$BASE/agents/maxim" },
+      { "id": "videoproducer", "name": "Алекс",   "workspace": "$BASE/agents/alex" }
     ]
   },
   "auth": {
@@ -209,7 +226,6 @@ cat > ~/.openclaw/openclaw.json << EOF
 EOF
 
 echo "  ✅ openclaw.json создан"
-echo "  ✅ Workspace: $WORKSPACE (один для всей команды)"
 
 echo ""
 echo -e "${YELLOW}[5/6] Устанавливаем скиллы...${NC}"
@@ -224,7 +240,6 @@ echo -e "${GREEN}  ✅ Скиллы установлены${NC}"
 
 echo ""
 echo -e "${YELLOW}[6/6] Запускаем OpenClaw...${NC}"
-
 openclaw gateway start
 
 echo ""
@@ -232,14 +247,15 @@ echo -e "${GREEN}============================================${NC}"
 echo -e "${GREEN}  ✅ Готово! Команда запущена.              ${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
-echo "Workspace команды: $WORKSPACE"
+echo "Структура:"
+echo "  $BASE/shared/   — общий brand/, learning/, memory/"
+echo "  $BASE/agents/   — каждый агент со своим SOUL.md"
 echo ""
 echo "Что дальше:"
 echo "  1. Напиши Решале в Telegram — он ответит"
-echo "  2. Заполни brand/ под свой бизнес: $WORKSPACE/brand/"
+echo "  2. Заполни бизнес: $BASE/shared/brand/"
 echo "  3. Статус: openclaw gateway status"
 echo "  4. Логи:   openclaw logs --follow"
 echo ""
 echo -e "${BLUE}Документация: https://docs.openclaw.ai${NC}"
-echo -e "${BLUE}Скиллы:       https://clawhub.com${NC}"
 echo ""
