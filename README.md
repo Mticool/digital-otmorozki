@@ -6,30 +6,29 @@
 
 ## Состав команды
 
-| # | Агент | Роль | Основные скиллы |
-|---|-------|------|-----------------|
-| 1 | ⚙️ **Решала** | **Главный. Принимает задачи, раздаёт команде** | selling-meanings, prompt-engineer |
-| 2 | 🧠 **Синсей** | Стратег — смыслы, распаковка, стратегия | selling-meanings, personal-unpacking |
-| 3 | ✍️ **Алёна** | Копирайтер — посты, тексты, статьи | copywriting, editing, headlines, storytelling |
-| 4 | 🔍 **Критик** | Редактор — проверяет всё перед выдачей | editing, shared-learnings |
-| 5 | 🎨 **Маша** | Дизайнер — карусели, обложки, картинки | carousel, nano-banana, heygen |
-| 6 | 📊 **Максим** | Аналитик — тренды, конкуренты, SwipeFile | swipefile, competitor-analysis, news-summary |
-| 7 | 🎬 **Алекс** | Видео продюсер — Reels, YouTube, монтаж | reels, youtube, video-editor, veo-video |
+| # | Агент | Роль | Скиллы |
+|---|-------|------|--------|
+| ⚙️ **Решала** | **Главный координатор** — принимает задачи, раздаёт команде | calendar, productivity |
+| 🧠 **Синсей** | Стратег — смыслы, распаковка, анализ рынка | selling-meanings, personal-unpacking, swipefile, competitor-analysis |
+| ✍️ **Алёна** | Копирайтер + Редактор — пишет, проверяет, финализирует | copywriting, editing, headlines, storytelling, ai-humanizer, content-repurposer |
+| 🎨 **Маша** | Дизайнер — карусели, картинки, аватары | carousel, nano-banana, heygen, openai-image-gen |
+| 📊 **Максим** | Аналитик — тренды, конкуренты, данные | swipefile, competitor-analysis, apify-ultimate-scraper, instagram-research |
+| 🎬 **Алекс** | Видео продюсер — Reels, YouTube, монтаж | reels, youtube, video-editor, veo-video |
 
 ---
 
 ## Как работает команда
 
 ```
-Ты → Решала → Синсей (стратегия)
-            → Алёна (текст) → Критик → тебе
-            → Маша (дизайн)
+Ты → Решала → Синсей (стратегия / смыслы)
+            → Алёна  (текст + редактура)
+            → Маша   (дизайн)
             → Максим (аналитика)
-            → Алекс (видео)
+            → Алекс  (видео)
 ```
 
-**Решала** — единая точка входа. Ты пишешь ему — он сам решает кому делегировать.
-Все тексты автоматически проходят через Критика перед выдачей.
+**Решала** — единая точка входа. Пишешь ему — он сам решает кому делегировать.
+**Алёна** совмещает написание и редактуру — отдельный Критик не нужен.
 
 ---
 
@@ -38,26 +37,23 @@
 ```
 agents/
   01-sinsei-strategist/    🧠 Стратег
-    SOUL.md                  — личность, миссия, правила
-    BOOTSTRAP.md             — что читать при старте
-    HEARTBEAT.md             — что делать при пингах
-    AGENTS.md                — протокол памяти
-    SKILLS.md                — какие скиллы устанавливать
-  02-alena-copywriter/     ✍️ Копирайтер
-  03-critic/               🔍 Критик
+  02-alena-copywriter/     ✍️ Копирайтер + Редактор
+  03-critic/               🔍 (устарел, не используется)
   04-masha-designer/       🎨 Дизайнер
   05-maxim-analyst/        📊 Аналитик
   06-alex-videoproducer/   🎬 Видео продюсер
-  07-reshala-crm/          ⚙️ CRM-бот
+  07-reshala-crm/          ⚙️ Главный координатор
 
 shared/
   brand/                   — профиль, голос, аудитория (настроить под себя)
-  skills-list/             — полный список скиллов с командами
+  skills-list/             — полный список скиллов
 
 docs/
-  INSTALL.md               — установка с нуля (шаг за шагом)
+  INSTALL.md               — установка с нуля
   CUSTOMIZE.md             — настройка под свой бизнес
 ```
+
+> Папка `03-critic` оставлена для обратной совместимости. Если хочешь — можешь установить Критика как отдельного агента, но в базовой конфигурации он не нужен.
 
 ---
 
@@ -75,21 +71,18 @@ cd digital-otmorozki
 cat docs/INSTALL.md
 ```
 
-Полная инструкция: **[docs/INSTALL.md](docs/INSTALL.md)**
-Настройка под себя: **[docs/CUSTOMIZE.md](docs/CUSTOMIZE.md)**
-
 ---
 
 ## Требования
 
 - VPS или сервер (Ubuntu 20.04+, от 2GB RAM) — Hetzner CX22 ~€4/мес
 - Node.js 18+
-- 7 Telegram-ботов (создать в @BotFather — бесплатно)
+- 6 Telegram-ботов (создать в @BotFather — бесплатно)
 - API-ключ Anthropic (claude.ai/api)
 
 ---
 
-## Связь
+## Ссылки
 
 - OpenClaw docs: [docs.openclaw.ai](https://docs.openclaw.ai)
 - ClawHub (скиллы): [clawhub.com](https://clawhub.com)

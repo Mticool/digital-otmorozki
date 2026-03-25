@@ -1,19 +1,19 @@
 # Скиллы — Синсей (Стратег)
 
-Синсей не пишет контент сам — он координирует команду и строит стратегию.
+Синсей думает стратегически — смыслы, распаковка, анализ рынка, стратегия контента.
 
 ## Что устанавливать
 
 ```bash
-# Стратегические скиллы
-clawhub install selling-meanings    # продающие смыслы и офферы
-clawhub install personal-unpacking  # распаковка личности
-clawhub install customer-research   # распаковка аудитории (unpacking)
-clawhub install prompt-engineer     # создание промптов
+clawhub install selling-meanings      # продающие смыслы и офферы
+clawhub install personal-unpacking    # распаковка личности эксперта
+clawhub install customer-research     # распаковка аудитории (unpacking)
+clawhub install swipefile             # разбор контента конкурентов
+clawhub install competitor-analysis   # анализ конкурентов
 ```
 
-## Как Синсей работает
-1. Получает задачу от пользователя
-2. Разбивает на подзадачи
-3. Делегирует нужным агентам через `sessions_send`
-4. Собирает результат и отдаёт пользователю
+## Одной командой
+
+```bash
+clawhub install selling-meanings personal-unpacking customer-research swipefile competitor-analysis
+```

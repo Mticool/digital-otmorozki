@@ -3,14 +3,18 @@
 ## Что устанавливать
 
 ```bash
-clawhub install carousel            # Instagram карусели
-clawhub install nano-banana         # генерация изображений (AI)
-clawhub install heygen              # AI-аватары и видео
+clawhub install carousel           # Instagram карусели
+clawhub install nano-banana        # генерация изображений (AI)
+clawhub install heygen             # AI-аватары и видео
+clawhub install openai-image-gen   # генерация через DALL-E (OpenAI)
 ```
 
-## Для генерации изображений
-Нужен API-ключ Nano Banana: https://nano-banana.com
-Добавить в `.env` воркспейса:
+## Одной командой
+
+```bash
+clawhub install carousel nano-banana heygen openai-image-gen
 ```
-NANO_BANANA_API_KEY=ваш_ключ
-```
+
+## API-ключи
+- Nano Banana: https://nano-banana.com → в `.env`: `NANO_BANANA_API_KEY=...`
+- OpenAI (для DALL-E): `OPENAI_API_KEY=...`
